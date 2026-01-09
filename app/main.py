@@ -33,7 +33,7 @@ async def get_etudiants():
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("SELECT * FROM utilisateur")
+        cur.execute("SELECT * FROM students")
         etudiants = cur.fetchall()
         cur.close()
         conn.close()
@@ -44,6 +44,8 @@ async def get_etudiants():
     result = []
     try:
         r = redis.Redis(host=REDIS_HOST, port=6379, decode_responses=True, socket_connect_timeout=1)
+        # Check connection
+        r.ping()
         redis_available = True
     except:
         redis_available = False
@@ -57,8 +59,8 @@ async def get_etudiants():
                 views = None
         
         result.append({
-            "nom": f"{etudiant['nom']} {etudiant['prenom']}",
-            "promo": etudiant.get('ville', 'M2 DevOps'),
+            "nom": etudiant['nom'],
+            "promo": etudiant['promo'],
             "views": views
         })
         
