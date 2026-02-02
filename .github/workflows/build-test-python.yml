@@ -1,0 +1,51 @@
+name: build-test-python
+
+on:
+  push:
+    branches: [ main/main ]
+    pull_request: [ main/main ]
+
+jobs:
+  build_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -f python.Dockerfile -t local-python-app:${{ github.sha }} . 
+
+      - name: Run container
+        run: |
+          docker run -d --name python-app -p 8000:8000 local-python-app:${{ github.sha }}
+
+      - name: Check logs for startup pattern
+        run: |
+          for i in {1..10}; do
+            if docker logs python-app 2>&1 | grep -qi "Uvicorn running on"; then
+              echo "Startup log found"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Startup log not found"
+          docker logs python-app
+          exit 1
+
+      - name: Smoke test HTTP
+        run: |
+          for i in {1..10}; do
+            if curl -fsS http://localhost:8000/ >/dev/null; then
+              echo "Smoke test passed"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Smoke test failed"
+          exit 1
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f python-app || true
