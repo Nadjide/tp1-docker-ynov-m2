@@ -1,5 +1,4 @@
 name: build-test-python
-
 on:
   push:
     branches: [ main/main ]
