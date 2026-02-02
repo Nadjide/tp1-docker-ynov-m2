@@ -2,8 +2,8 @@ name: build-test-python
 on:
   push:
     branches: [ main/main ]
-    pull_request: [ main/main ]
-
+  pull_request:
+    branches: [ main/main ]
 jobs:
   build_test:
     runs-on: ubuntu-latest
