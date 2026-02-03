@@ -1,0 +1,27 @@
+name: security-scan
+
+on:
+  workflow_run:
+    workflows: ["build-test-python"]
+    types:
+      - completed
+
+jobs:
+  trivy_scan:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - nginx:alpine
+          - postgres:alpine
+          - redis:alpine
+    steps:
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ matrix.image }}
+          format: table
+          severity: CRITICAL
+          exit-code: 1
