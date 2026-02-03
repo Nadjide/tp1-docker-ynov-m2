@@ -24,6 +24,7 @@ jobs:
         run: |
           echo "sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
           echo "ref=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_OUTPUT
+          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -36,7 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ${{ steps.ctx.outputs.image }}
           tags: |
             type=sha,format=long
             type=ref,event=branch
