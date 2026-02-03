@@ -7,13 +7,13 @@ services:
       - "8080:80"
     volumes:
       - ./frontend:/usr/share/nginx/html:ro
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - public_net
+      - private_net
 
   api:
-    build:
-      context: .
-      dockerfile: python.Dockerfile
+    image: ${PYTHON_IMAGE:-local-python-app:latest}
     ports:
       - "8000:8000"
     environment:
